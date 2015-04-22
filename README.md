@@ -19,3 +19,24 @@ var jsonSchemaDoc = JSON.parse($.ajax({
 var jsonSchema = new JSONSchema(jsonSchemaDoc);
 var simpleSchema = jsonSchema.toSimpleSchema();
 ```
+
+## Disclaimer
+This is the first iteration of this project, with minimal functionality. It currently supports base data types (including arrays), inline sub-objects and many of the validation options:
+* title
+* minimum
+* maximum
+* minLength
+* maxLength
+* enum
+* minItems
+* maxItems
+* default
+* pattern
+* required
+
+## TODO
+* Add support for internal `$ref` schemas, from `definitions`
+* Add support for external `$ref` schemas, from a URI.
+
+## Contributing
+Please feel free to contribute by sumbitting a pull request.

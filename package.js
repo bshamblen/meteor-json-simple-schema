@@ -9,6 +9,7 @@ Package.describe({
 Package.onUse(function(api) {
 	api.versionsFrom('1.1.0.0');
 	api.use('aldeed:simple-schema@1.3.2');
+	api.use('underscore');
 	api.addFiles('json-simple-schema.js');
 	api.export(['JSONSchema'], ['client', 'server']);
 });
