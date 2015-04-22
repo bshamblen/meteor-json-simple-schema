@@ -1,6 +1,6 @@
 Package.describe({
 	name: 'bshamblen:json-simple-schema',
-	version: '0.0.1',
+	version: '0.0.2',
 	summary: 'Converts a JSON Schema to a SimpleSchema, for use with Collection2 and AutoForm.',
 	git: 'https://github.com/yodata/meteor-json-simple-schema.git',
 	documentation: 'README.md'

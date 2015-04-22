@@ -4,7 +4,7 @@ Converts a JSON schema document to a SimpleSchema object, for use with Collectio
 
 ## Install
 ```cli
-meteor install bshamblen:json-simple-schema
+meteor add bshamblen:json-simple-schema
 ```
 
 ## Use
