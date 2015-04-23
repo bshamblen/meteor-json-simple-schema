@@ -25,6 +25,8 @@ This is the first iteration of this project, with minimal functionality. It curr
 * title
 * minimum
 * maximum
+* exclusiveMinimum
+* exclusiveMaximum
 * minLength
 * maxLength
 * enum

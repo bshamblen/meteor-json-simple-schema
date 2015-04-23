@@ -1,6 +1,6 @@
 aldeed:simple-schema@1.3.2
 base64@1.0.3
-bshamblen:json-simple-schema@0.0.1
+bshamblen:json-simple-schema@0.0.2
 check@1.0.5
 deps@1.0.7
 ejson@1.0.6

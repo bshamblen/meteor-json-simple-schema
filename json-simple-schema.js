@@ -17,9 +17,9 @@ JSONSchema = function(schema, options) {
 		var schema = {};
 
 		_.each(properties, function(prop, key) {
-			var sProp = {};
-			addRules(sProp, prop, required.indexOf(key) !== -1);
-			schema[key] = sProp;
+			var ssProp = {};
+			addRules(ssProp, prop, required.indexOf(key) !== -1);
+			schema[key] = ssProp;
 
 			var subProps = getSubPropertiesFromProperty(prop);
 
@@ -88,9 +88,11 @@ JSONSchema = function(schema, options) {
 	}
 
 	var translationMap = {
-		title: 'label',
+		description: 'label',
 		minimum: 'min',
 		maximum: 'max',
+		exclusiveMinimum: 'exclusiveMin',
+		exclusiveMaximum: 'exclusiveMax',
 		minLength: 'min',
 		maxLength: 'max',
 		emun: 'allowedValues',
@@ -103,7 +105,7 @@ JSONSchema = function(schema, options) {
 		target.type = getTypeFromProperty(source);
 
 		_.each(translationMap, function(sKey, jKey) {
-			if (source[jKey]) {
+			if (typeof source[jKey] !== 'undefined') {
 				target[sKey] = source[jKey];
 			}
 		});
@@ -118,6 +120,12 @@ JSONSchema = function(schema, options) {
 			target.autoform = {
 				afFieldInput: {
 					type: 'datetime'
+				}
+			}
+		} else if (target.allowedValues) {
+			target.autoform = {
+				afFieldInput: {
+					type: 'select'
 				}
 			}
 		}
