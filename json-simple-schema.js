@@ -122,6 +122,8 @@ JSONSchema = function(schema, options) {
 					type: 'datetime'
 				}
 			}
+		} else if (source.type === 'number') {
+			target.decimal = true;
 		}
 	}
 };
