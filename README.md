@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/yodata/meteor-json-simple-schema.png?branch=master)](https://travis-ci.org/yodata/meteor-json-simple-schema)
+
 # JSON Schema to SimpleSchema Converter
 
 Converts a JSON schema document to a SimpleSchema object, for use with Collection2 and AutoForm.
