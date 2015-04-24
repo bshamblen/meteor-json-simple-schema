@@ -28,6 +28,10 @@ var packageJsonSchema = {
 		'color': {
 			'type': 'string',
 			'enum': ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet']
+		},
+		'emailAddress': {
+			'type': 'string',
+			'format': 'email'
 		}
 	},
 	'required': ['id', 'name', 'price']
@@ -52,6 +56,7 @@ Tinytest.add('JSONSchema - convert a basic JSON schema object to a SimpleSchema 
 	test.equal(rawSchema.price.min, 0);
 	test.equal(rawSchema.price.optional, false);
 	test.equal(rawSchema.price.exclusiveMin, true);
+	test.equal(rawSchema.price.decimal, true);
 
 	test.equal(rawSchema.tags.type, Array);
 	test.equal(rawSchema.tags.minCount, 1);
@@ -59,4 +64,7 @@ Tinytest.add('JSONSchema - convert a basic JSON schema object to a SimpleSchema 
 
 	test.equal(rawSchema.color.type, String);
 	test.equal(rawSchema.color.allowedValues.length, 7);
+
+	test.equal(rawSchema.emailAddress.type, String);
+	test.equal(rawSchema.emailAddress.regEx, SimpleSchema.RegEx.Email);
 });

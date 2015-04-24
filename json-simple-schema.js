@@ -116,14 +116,30 @@ JSONSchema = function(schema, options) {
 			target.regEx = new RegExp(source.pattern);
 		}
 
-		if (target.type === Date && source.format === 'date-time') {
-			target.autoform = {
-				afFieldInput: {
-					type: 'datetime'
-				}
-			}
-		} else if (source.type === 'number') {
+		if (!source.pattern && source.format === 'email') {
+			target.regEx = SimpleSchema.RegEx.Email;
+		} else if (!source.pattern && (source.format === 'host-name' || source.format === 'hostname')) {
+			target.regEx = SimpleSchema.RegEx.Domain;
+		} else if (!source.pattern && source.format === 'ipv4') {
+			target.rexEx = SimpleSchema.RegEx.IPv4;
+		} else if (!source.pattern && source.format === 'ipv6') {
+			target.rexEx = SimpleSchema.RegEx.IPv6;
+		} else if (source.format === 'date-time') {
+			setAutoformInputType(target, 'datetime');
+		} else if (source.type === 'number' || (source.type === 'array' && source.items && source.items.type === 'number')) {
 			target.decimal = true;
 		}
+	}
+
+	function setAutoformInputType(target, type) {
+		if (!target.autoform) {
+			target.autoform = {}
+		}
+
+		if (!target.autoform.afFieldInput) {
+			target.autoform.afFieldInput = {};
+		}
+
+		target.autoform.afFieldInput.type = type;
 	}
 };
