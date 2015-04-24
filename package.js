@@ -1,6 +1,6 @@
 Package.describe({
 	name: 'bshamblen:json-simple-schema',
-	version: '0.0.3',
+	version: '0.0.4',
 	summary: 'Converts a JSON Schema to a SimpleSchema, for use with Collection2 and AutoForm.',
 	git: 'https://github.com/yodata/meteor-json-simple-schema.git',
 	documentation: 'README.md'
@@ -17,5 +17,5 @@ Package.onUse(function(api) {
 Package.onTest(function(api) {
 	api.use('bshamblen:json-simple-schema', ['client', 'server']);
 	api.use(['tinytest', 'underscore', 'aldeed:simple-schema@1.3.2']);
-	api.addFiles('./tests/index.js', ['client', 'server']);
+	api.addFiles('json-simple-schema-tests.js', ['client', 'server']);
 });

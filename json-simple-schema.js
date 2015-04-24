@@ -95,7 +95,7 @@ JSONSchema = function(schema, options) {
 		exclusiveMaximum: 'exclusiveMax',
 		minLength: 'min',
 		maxLength: 'max',
-		emun: 'allowedValues',
+		'enum': 'allowedValues',
 		minItems: 'minCount',
 		maxItems: 'maxCount',
 		'default': 'defaultValue'
@@ -120,12 +120,6 @@ JSONSchema = function(schema, options) {
 			target.autoform = {
 				afFieldInput: {
 					type: 'datetime'
-				}
-			}
-		} else if (target.allowedValues) {
-			target.autoform = {
-				afFieldInput: {
-					type: 'select'
 				}
 			}
 		}

@@ -24,6 +24,10 @@ var packageJsonSchema = {
 			},
 			'minItems': 1,
 			'uniqueItems': true
+		},
+		'color': {
+			'type': 'string',
+			'enum': ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet']
 		}
 	},
 	'required': ['id', 'name', 'price']
@@ -32,16 +36,27 @@ var packageJsonSchema = {
 Tinytest.add('JSONSchema - convert a basic JSON schema object to a SimpleSchema object', function(test) {
 	var jsonSchema = new JSONSchema(packageJsonSchema);
 	var simpleSchema = jsonSchema.toSimpleSchema();
+
+	//Make sure .toSimpleSchema returned a SimpleSchema object
 	test.instanceOf(simpleSchema, SimpleSchema);
-	test.equal(simpleSchema._schema.id.type, Number);
-	test.equal(simpleSchema._schema.id.optional, false);
-	test.equal(simpleSchema._schema.name.type, String);
-	test.equal(simpleSchema._schema.name.optional, false);
-	test.equal(simpleSchema._schema.price.type, Number);
-	test.equal(simpleSchema._schema.price.min, 0);
-	test.equal(simpleSchema._schema.price.optional, false);
-	test.equal(simpleSchema._schema.price.exclusiveMin, true);
-	test.equal(simpleSchema._schema.tags.type, Array);
-	test.equal(simpleSchema._schema.tags.minCount, 1);
-	test.equal(simpleSchema._schema['tags.$'].type, String);
+
+	var rawSchema = simpleSchema._schema;
+
+	test.equal(rawSchema.id.type, Number);
+	test.equal(rawSchema.id.optional, false);
+
+	test.equal(rawSchema.name.type, String);
+	test.equal(rawSchema.name.optional, false);
+
+	test.equal(rawSchema.price.type, Number);
+	test.equal(rawSchema.price.min, 0);
+	test.equal(rawSchema.price.optional, false);
+	test.equal(rawSchema.price.exclusiveMin, true);
+
+	test.equal(rawSchema.tags.type, Array);
+	test.equal(rawSchema.tags.minCount, 1);
+	test.equal(rawSchema['tags.$'].type, String);
+
+	test.equal(rawSchema.color.type, String);
+	test.equal(rawSchema.color.allowedValues.length, 7);
 });
