@@ -36,6 +36,8 @@ JSONSchema = function(schema, options) {
 	}
 
 	function getTypeFromProperty(prop) {
+		prop = resolveReference(prop);
+
 		var propType = prop.type === 'array' ? prop.items.type : prop.type;
 		var format = prop.format;
 		var ssType = String;
@@ -64,25 +66,25 @@ JSONSchema = function(schema, options) {
 	}
 
 	function getSubPropertiesFromProperty(prop) {
+		prop = resolveReference(prop);
+
 		if (prop.type === 'object' && prop.properties) {
 			return prop.properties;
 		} else if (prop.type === 'array' && prop.items && prop.items.type === 'object' && prop.items.properties) {
 			return prop.items.properties;
 		}
 
-		//TODO: Add support to get properties from $ref definition.
-
 		return null;
 	}
 
 	function getRequiredFromProperty(prop) {
+		prop = resolveReference(prop);
+
 		if (prop.type === 'object' && prop.properties) {
 			return prop.required || [];
 		} else if (prop.type === 'array' && prop.items && prop.items.type === 'object' && prop.items.properties) {
 			return prop.items.required || [];
 		}
-
-		//TODO: Add support to get required properties from $ref definition.
 
 		return [];
 	}
@@ -141,5 +143,36 @@ JSONSchema = function(schema, options) {
 		}
 
 		target.autoform.afFieldInput.type = type;
+	}
+
+	// https://tools.ietf.org/id/draft-pbryan-zyp-json-ref-03.html
+	// https://tools.ietf.org/html/draft-ietf-appsawg-json-pointer-04
+	function resolveReference(prop) {
+		var $ref;
+		if ($ref = prop.$ref) {
+			if ($ref == '#') {
+				// Prevent infinite recursion.
+				return {type: jsonSchema.type || 'object'};
+			}
+			else if ($ref.substring(0,2) == '#/') {
+				var refParts = decodeURIComponent($ref).substring(2).split('/');
+				var out = _.reduce(refParts, function(memo, refPart) {
+					if (_.isArray(memo)) {
+						return memo[parseInt(refPart)];
+					}
+					else {
+						refPart = refPart.replace('~1','/').replace('~0','~');
+						return memo[refPart];
+					}
+				}, jsonSchema);
+				return out;
+			}
+			else {
+				throw new Error("Non-internal or relative JSON references not yet implemented")
+			}
+		}
+		else {
+			return prop;
+		}
 	}
 };

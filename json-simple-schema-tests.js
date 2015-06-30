@@ -25,6 +25,15 @@ var packageJsonSchema = {
 			'minItems': 1,
 			'uniqueItems': true
 		},
+		'arrayOfObjects': {
+			'type': 'array',
+			'items': {
+				'type': 'object',
+				'properties': {
+					'foo': {'type': 'string'}
+				}
+			}
+		},
 		'color': {
 			'type': 'string',
 			'enum': ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet']
@@ -62,9 +71,46 @@ Tinytest.add('JSONSchema - convert a basic JSON schema object to a SimpleSchema 
 	test.equal(rawSchema.tags.minCount, 1);
 	test.equal(rawSchema['tags.$'].type, String);
 
+	test.equal(rawSchema['arrayOfObjects.$.foo'].type, String);
+
 	test.equal(rawSchema.color.type, String);
 	test.equal(rawSchema.color.allowedValues.length, 7);
 
 	test.equal(rawSchema.emailAddress.type, String);
 	test.equal(rawSchema.emailAddress.regEx, SimpleSchema.RegEx.Email);
+});
+
+// https://tools.ietf.org/html/draft-ietf-appsawg-json-pointer-04
+var packageJsonSchemaWithInternalRef = {
+	'$schema': 'http://json-schema.org/draft-04/schema#',
+	'title': 'Thing',
+	'type': 'object',
+	'properties': {
+		'prop': {'$ref': '#/definitions/definitionWithSpecialChars~0~1%25'},
+		'prop2': {'$ref': '#/definitions/arrayOfDefs/1'},
+		'prop3': {'$ref': '#'}
+	},
+	'definitions': {
+		'definitionWithSpecialChars~/%': {
+			'type': 'boolean'
+		},
+		'arrayOfDefs': [
+			{'type': 'string'},
+			{'type': 'number'}
+		]
+	}
+}
+
+Tinytest.add('JSONSchema - convert a JSON schema object with internal references to a SimpleSchema object', function(test) {
+	var jsonSchema = new JSONSchema(packageJsonSchemaWithInternalRef);
+	var simpleSchema = jsonSchema.toSimpleSchema();
+
+	//Make sure .toSimpleSchema returned a SimpleSchema object
+	test.instanceOf(simpleSchema, SimpleSchema);
+
+	var rawSchema = simpleSchema._schema;
+
+	test.equal(rawSchema.prop.type, Boolean);
+	test.equal(rawSchema.prop2.type, Number);
+	test.equal(rawSchema.prop3.type, Object);
 });
