@@ -146,31 +146,29 @@ JSONSchema = function(schema, options) {
 	function resolveReference(prop) {
 		var $ref;
 		if ($ref = prop.$ref) {
-			if ($ref == '#') {
+			if ($ref === '#') {
 				// Prevent infinite recursion.
 				return {type: jsonSchema.type || 'object'};
-			}
-			else if ($ref.substring(0,2) == '#/') {
+			} else if ($ref.substring(0, 2) === '#/') {
 				var refParts = decodeURIComponent($ref).substring(2).split('/');
 				var out = _.reduce(refParts, function(memo, refPart) {
 					if (_.isArray(memo)) {
 						return memo[parseInt(refPart)];
-					}
-					else {
-						refPart = refPart.replace('~1','/').replace('~0','~');
+					} else {
+						refPart = refPart.replace('~1', '/').replace('~0', '~');
 						return memo[refPart];
 					}
 				}, jsonSchema);
+
 				return resolveReference(out);
+			} else {
+				throw new Error('Non-internal or relative JSON references not yet implemented');
 			}
-			else {
-				throw new Error("Non-internal or relative JSON references not yet implemented")
-			}
-		}
-		else {
+		} else {
 			if (prop.items && prop.items.$ref) {
 				return _.defaults({items: resolveReference(prop.items)}, prop);
 			}
+
 			return prop;
 		}
 	}

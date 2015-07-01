@@ -37,9 +37,9 @@ This is the first iteration of this project, with minimal functionality. It curr
 * default
 * pattern
 * required
+* Now supports internal `$ref` (thanks [@bpatridge](https://github.com/bpartridge))
 
 ## TODO
-* Add support for internal `$ref` schemas, from `definitions`
 * Add support for external `$ref` schemas, from a URI.
 
 ## Contributing
