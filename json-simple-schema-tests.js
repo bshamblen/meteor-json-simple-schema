@@ -92,7 +92,8 @@ var packageJsonSchemaWithInternalRef = {
 	},
 	'definitions': {
 		'definitionWithSpecialChars~/%': {
-			'type': 'boolean'
+			'type': 'string',
+			'format': 'email'
 		},
 		'arrayOfDefs': [
 			{'type': 'string'},
@@ -110,7 +111,8 @@ Tinytest.add('JSONSchema - convert a JSON schema object with internal references
 
 	var rawSchema = simpleSchema._schema;
 
-	test.equal(rawSchema.prop.type, Boolean);
+	test.equal(rawSchema.prop.type, String);
+	test.equal(rawSchema.prop.regEx, SimpleSchema.RegEx.Email);
 	test.equal(rawSchema.prop2.type, Number);
 	test.equal(rawSchema.prop3.type, Object);
 });

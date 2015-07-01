@@ -17,6 +17,8 @@ JSONSchema = function(schema, options) {
 		var schema = {};
 
 		_.each(properties, function(prop, key) {
+			prop = resolveReference(prop);
+
 			var ssProp = {};
 			addRules(ssProp, prop, required.indexOf(key) !== -1);
 			schema[key] = ssProp;
@@ -36,7 +38,6 @@ JSONSchema = function(schema, options) {
 	}
 
 	function getTypeFromProperty(prop) {
-		prop = resolveReference(prop);
 
 		var propType = prop.type === 'array' ? prop.items.type : prop.type;
 		var format = prop.format;
@@ -66,7 +67,6 @@ JSONSchema = function(schema, options) {
 	}
 
 	function getSubPropertiesFromProperty(prop) {
-		prop = resolveReference(prop);
 
 		if (prop.type === 'object' && prop.properties) {
 			return prop.properties;
@@ -78,7 +78,6 @@ JSONSchema = function(schema, options) {
 	}
 
 	function getRequiredFromProperty(prop) {
-		prop = resolveReference(prop);
 
 		if (prop.type === 'object' && prop.properties) {
 			return prop.required || [];
