@@ -88,7 +88,11 @@ var packageJsonSchemaWithInternalRef = {
 	'properties': {
 		'prop': {'$ref': '#/definitions/definitionWithSpecialChars~0~1%25'},
 		'prop2': {'$ref': '#/definitions/arrayOfDefs/1'},
-		'prop3': {'$ref': '#'}
+		'prop3': {'$ref': '#'},
+		'refItems': {
+			'type': 'array',
+			'items': {'$ref': '#/definitions/arrayOfDefs/1'}
+		}
 	},
 	'definitions': {
 		'definitionWithSpecialChars~/%': {
@@ -115,4 +119,7 @@ Tinytest.add('JSONSchema - convert a JSON schema object with internal references
 	test.equal(rawSchema.prop.regEx, SimpleSchema.RegEx.Email);
 	test.equal(rawSchema.prop2.type, Number);
 	test.equal(rawSchema.prop3.type, Object);
+
+	test.equal(rawSchema.refItems.type, Array);
+	test.equal(rawSchema['refItems.$'].type, Number);
 });

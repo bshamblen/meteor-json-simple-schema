@@ -38,7 +38,6 @@ JSONSchema = function(schema, options) {
 	}
 
 	function getTypeFromProperty(prop) {
-
 		var propType = prop.type === 'array' ? prop.items.type : prop.type;
 		var format = prop.format;
 		var ssType = String;
@@ -67,7 +66,6 @@ JSONSchema = function(schema, options) {
 	}
 
 	function getSubPropertiesFromProperty(prop) {
-
 		if (prop.type === 'object' && prop.properties) {
 			return prop.properties;
 		} else if (prop.type === 'array' && prop.items && prop.items.type === 'object' && prop.items.properties) {
@@ -78,7 +76,6 @@ JSONSchema = function(schema, options) {
 	}
 
 	function getRequiredFromProperty(prop) {
-
 		if (prop.type === 'object' && prop.properties) {
 			return prop.required || [];
 		} else if (prop.type === 'array' && prop.items && prop.items.type === 'object' && prop.items.properties) {
@@ -164,13 +161,16 @@ JSONSchema = function(schema, options) {
 						return memo[refPart];
 					}
 				}, jsonSchema);
-				return out;
+				return resolveReference(out);
 			}
 			else {
 				throw new Error("Non-internal or relative JSON references not yet implemented")
 			}
 		}
 		else {
+			if (prop.items && prop.items.$ref) {
+				return _.defaults({items: resolveReference(prop.items)}, prop);
+			}
 			return prop;
 		}
 	}
