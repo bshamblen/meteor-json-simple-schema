@@ -17,6 +17,8 @@ JSONSchema = function(schema, options) {
 		var schema = {};
 
 		_.each(properties, function(prop, key) {
+			prop = resolveReference(prop);
+
 			var ssProp = {};
 			addRules(ssProp, prop, required.indexOf(key) !== -1);
 			schema[key] = ssProp;
@@ -70,8 +72,6 @@ JSONSchema = function(schema, options) {
 			return prop.items.properties;
 		}
 
-		//TODO: Add support to get properties from $ref definition.
-
 		return null;
 	}
 
@@ -81,8 +81,6 @@ JSONSchema = function(schema, options) {
 		} else if (prop.type === 'array' && prop.items && prop.items.type === 'object' && prop.items.properties) {
 			return prop.items.required || [];
 		}
-
-		//TODO: Add support to get required properties from $ref definition.
 
 		return [];
 	}
@@ -141,5 +139,39 @@ JSONSchema = function(schema, options) {
 		}
 
 		target.autoform.afFieldInput.type = type;
+	}
+
+	// https://tools.ietf.org/id/draft-pbryan-zyp-json-ref-03.html
+	// https://tools.ietf.org/html/draft-ietf-appsawg-json-pointer-04
+	function resolveReference(prop) {
+		var $ref;
+		if ($ref = prop.$ref) {
+			if ($ref == '#') {
+				// Prevent infinite recursion.
+				return {type: jsonSchema.type || 'object'};
+			}
+			else if ($ref.substring(0,2) == '#/') {
+				var refParts = decodeURIComponent($ref).substring(2).split('/');
+				var out = _.reduce(refParts, function(memo, refPart) {
+					if (_.isArray(memo)) {
+						return memo[parseInt(refPart)];
+					}
+					else {
+						refPart = refPart.replace('~1','/').replace('~0','~');
+						return memo[refPart];
+					}
+				}, jsonSchema);
+				return resolveReference(out);
+			}
+			else {
+				throw new Error("Non-internal or relative JSON references not yet implemented")
+			}
+		}
+		else {
+			if (prop.items && prop.items.$ref) {
+				return _.defaults({items: resolveReference(prop.items)}, prop);
+			}
+			return prop;
+		}
 	}
 };
