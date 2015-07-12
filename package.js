@@ -8,7 +8,7 @@ Package.describe({
 
 Package.onUse(function(api) {
 	api.versionsFrom(['METEOR@0.9.3', 'METEOR@0.9.4', 'METEOR@1.0']);
-	api.use('aldeed:simple-schema@1.3.2');
+	api.use(['aldeed:simple-schema@1.3.2', 'aldeed:autoform@5.3.1']);
 	api.use('underscore');
 	api.addFiles('json-simple-schema.js');
 	api.export(['JSONSchema'], ['client', 'server']);

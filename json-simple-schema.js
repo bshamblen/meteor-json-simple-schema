@@ -21,6 +21,9 @@ JSONSchema = function(schema, options) {
 
 			var ssProp = {};
 			addRules(ssProp, prop, required.indexOf(key) !== -1);
+			if (Meteor.isClient) {
+			  addAutoformAttributes(ssProp, prop);
+			}
 			schema[key] = ssProp;
 
 			var subProps = getSubPropertiesFromProperty(prop);
@@ -86,7 +89,7 @@ JSONSchema = function(schema, options) {
 	}
 
 	var translationMap = {
-		description: 'label',
+		title: 'label',
 		minimum: 'min',
 		maximum: 'max',
 		exclusiveMinimum: 'exclusiveMin',
@@ -122,14 +125,12 @@ JSONSchema = function(schema, options) {
 			target.rexEx = SimpleSchema.RegEx.IPv4;
 		} else if (!source.pattern && source.format === 'ipv6') {
 			target.rexEx = SimpleSchema.RegEx.IPv6;
-		} else if (source.format === 'date-time') {
-			setAutoformInputType(target, 'datetime');
 		} else if (source.type === 'number' || (source.type === 'array' && source.items && source.items.type === 'number')) {
 			target.decimal = true;
 		}
 	}
 
-	function setAutoformInputType(target, type) {
+	function attachAutoformObject(target) {
 		if (!target.autoform) {
 			target.autoform = {}
 		}
@@ -137,8 +138,18 @@ JSONSchema = function(schema, options) {
 		if (!target.autoform.afFieldInput) {
 			target.autoform.afFieldInput = {};
 		}
+	}
 
-		target.autoform.afFieldInput.type = type;
+	function addAutoformAttributes(target, source) {
+		if (source.description) {
+			attachAutoformObject(target);
+			target.autoform.afFieldInput.title = source.description;
+		}
+
+		if (source.format === 'date-time') {
+			attachAutoformObject(target);
+			target.autoform.afFieldInput.type = 'datetime';
+		}
 	}
 
 	// https://tools.ietf.org/id/draft-pbryan-zyp-json-ref-03.html
