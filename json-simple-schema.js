@@ -21,11 +21,12 @@ JSONSchema = function(schema, options) {
 
 			var ssProp = {};
 			addRules(ssProp, prop, required.indexOf(key) !== -1);
-			if (Meteor.isClient) {
-			  addAutoformAttributes(ssProp, prop);
-			}
-			schema[key] = ssProp;
 
+			if (Meteor.isClient) {
+				addAutoformAttributes(ssProp, prop);
+			}
+
+			schema[key] = ssProp;
 			var subProps = getSubPropertiesFromProperty(prop);
 
 			if (subProps) {
