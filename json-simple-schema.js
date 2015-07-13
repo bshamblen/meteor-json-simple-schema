@@ -17,7 +17,9 @@ JSONSchema = function(schema, options) {
 		var schema = {};
 
 		_.each(properties, function(prop, key) {
-			prop = resolveReference(prop);
+			var ref = resolveReference(prop);
+			delete prop.$ref;
+			prop = _.extend(ref, prop);
 
 			var ssProp = {};
 			addRules(ssProp, prop, required.indexOf(key) !== -1);
