@@ -11,15 +11,16 @@ JSONSchema = function(schema, options) {
 		var props = jsonSchema.properties || jsonSchema;
 		var simpleSchema = translateProperties(props, getRequiredFromProperty(jsonSchema));
 		return new SimpleSchema(simpleSchema);
-	}
+	};
 
 	function translateProperties(properties, required) {
 		var schema = {};
 
 		_.each(properties, function(prop, key) {
-			var ref = resolveReference(prop);
-			delete prop.$ref;
-			prop = _.extend(ref, prop);
+			var oldProp = prop;
+			prop = resolveReference(prop);
+			prop.title = oldProp.title;
+			prop.description = oldProp.description;
 
 			var ssProp = {};
 			addRules(ssProp, prop, required.indexOf(key) !== -1);
@@ -92,25 +93,24 @@ JSONSchema = function(schema, options) {
 	}
 
 	var translationMap = {
-		title: 'label',
-		minimum: 'min',
-		maximum: 'max',
-		exclusiveMinimum: 'exclusiveMin',
-		exclusiveMaximum: 'exclusiveMax',
-		minLength: 'min',
-		maxLength: 'max',
-		'enum': 'allowedValues',
-		minItems: 'minCount',
-		maxItems: 'maxCount',
-		'default': 'defaultValue'
-	}
+		title: {key: 'label'},
+		minimum: {key: 'min', type: Number},
+		maximum: {key: 'max', type: Number},
+		exclusiveMinimum: {key: 'exclusiveMin', type: Number},
+		exclusiveMaximum: {key: 'exclusiveMax', type: Number},
+		minLength: {key: 'min', type: Number},
+		maxLength: {key: 'max', type: Number},
+		minItems: {key: 'minCount', type: Number},
+		maxItems: {key: 'maxCount', type: Number},
+		'default': {key: 'defaultValue'}
+	};
 
 	function addRules(target, source, isRequired) {
 		target.type = getTypeFromProperty(source);
 
-		_.each(translationMap, function(sKey, jKey) {
+		_.each(translationMap, function(spec, jKey) {
 			if (typeof source[jKey] !== 'undefined') {
-				target[sKey] = source[jKey];
+				target[spec.key] = spec.type ? spec.type(source[jKey]) : source[jKey];
 			}
 		});
 
@@ -118,6 +118,10 @@ JSONSchema = function(schema, options) {
 
 		if (source.pattern) {
 			target.regEx = new RegExp(source.pattern);
+		}
+
+		if (source.enum) {
+			target.allowedValues = source.enum.filter(function (item) {return item !== null; });
 		}
 
 		if (!source.pattern && source.format === 'email') {
@@ -135,7 +139,7 @@ JSONSchema = function(schema, options) {
 
 	function attachAutoformObject(target) {
 		if (!target.autoform) {
-			target.autoform = {}
+			target.autoform = {};
 		}
 
 		if (!target.autoform.afFieldInput) {
@@ -152,6 +156,11 @@ JSONSchema = function(schema, options) {
 		if (source.format === 'date-time') {
 			attachAutoformObject(target);
 			target.autoform.afFieldInput.type = 'datetime';
+		}
+
+		if (source.enum && source.enum.some(function (item) { return item === null; })) {
+			attachAutoformObject(target);
+			target.autoform.afFieldInput.firstOption = '(None)';
 		}
 	}
 
