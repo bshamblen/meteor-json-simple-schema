@@ -52,6 +52,21 @@ JsonSimpleSchema.prototype.toSimpleSchema = function toSimpleSchema(spec, callba
   });
 };
 
+JsonSimpleSchema.prototype.toSimpleSchemaInstance = function toSimpleSchemaInstance(spec, callback) {
+  checkToSimpleSchemaSpec(spec);
+  convertSchema.bind(this)(spec, function (error, jsonSchema) {
+    if (error) { return callback(error); }
+    var simpleSchema;
+    try {
+      simpleSchema = jsonSchemaToSimpleSchema(jsonSchema);
+      simpleSchema = new SimpleSchema(simpleSchema);
+    } catch(e) {
+      return callback(e);
+    }
+    return callback(null, simpleSchema);
+  });
+};
+
 /**
  * Check To Simple Schema Spec
  */
