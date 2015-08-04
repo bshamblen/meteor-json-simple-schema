@@ -22,19 +22,29 @@ JsonSimpleSchema.prototype.emptyCache = function emptyCache() {
 };
 
 /**
- * To Simple Schema
+ * Get Json Schema
+ * Get Json schema with all internal and external refs dereferenced
  * @param {object} spec
  * @param {string|object} spec.json - json schema
  * @param {string} spec.url - url where json schema can be fetched
  * @param {function} callback - standard fn(error, result) style callback
  */
-JsonSimpleSchema.prototype.toSimpleSchema = function toSimpleSchema(spec, callback) {
+function getJsonSchema(spec, callback) {
   checkToSimpleSchemaSpec(spec);
-  convertSchema.bind(this)(spec, function (error, jsonSchema) {
+  getJsonSchemaInternal.bind(this)(spec, callback);
+}
+JsonSimpleSchema.prototype.getJsonSchema = getJsonSchema;
+
+/**
+ * To Simple Schema
+ */
+JsonSimpleSchema.prototype.toSimpleSchema = function toSimpleSchema(spec, callback) {
+  getJsonSchema.bind(this)(spec, function (error, jsonSchema) {
     if (error) { return callback(error); }
     var simpleSchema;
     try {
-      simpleSchema = jsonSchemaToSimpleSchema(jsonSchema);
+      simpleSchema = convertSchema(jsonSchema);
+      simpleSchema = new SimpleSchema(simpleSchema);
     } catch(e) {
       return callback(e);
     }
@@ -56,10 +66,10 @@ function checkToSimpleSchemaSpec(spec) {
 }
 
 /**
- * Convert Schema
+ * Get Json Schema Internal
  * @param {object} spec - same spec object from 'toSimpleSchema'
  */
-function convertSchema(spec, callback) {
+function getJsonSchemaInternal(spec, callback) {
   // return schema from cache, if available
   if (spec.url && this._cache[spec.url]) {
     return callback(null, this._cache[spec.url]);
@@ -115,7 +125,7 @@ function resolveExternalRefs(spec, callback) {
   if (spec.externalRefs.length) {
     var resolvedCount = 0;
     spec.externalRefs.forEach(function (refItem) {
-      convertSchema.bind(this)({url: refItem.url}, function (err, result) {
+      getJsonSchema.bind(this)({url: refItem.url}, function (err, result) {
         insertExternalRef(spec.json, refItem, result);
         if (++resolvedCount === spec.externalRefs.length) {
           callback(null, resolveInteralRefs(spec, cache));
@@ -256,11 +266,12 @@ function resolveInternalReference(prop, schema) {
   }
 }
 
-
-function jsonSchemaToSimpleSchema(jsonSchema) {
+/**
+ * Convert Schema
+ */
+function convertSchema(jsonSchema) {
   var props = jsonSchema.properties || jsonSchema;
-  var simpleSchema = translateProperties(props, getRequiredFromProperty(jsonSchema));
-  return new SimpleSchema(simpleSchema);
+  return translateProperties(props, getRequiredFromProperty(jsonSchema));
 }
 
 

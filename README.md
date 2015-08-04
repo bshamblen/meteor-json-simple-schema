@@ -37,8 +37,12 @@ var altSpec = {json: schemaObject}
 
 var converter = new JsonSimpleSchema();
 
+converter.getJsonSchema(spec, function (error, jsonSchema) {
+  // jsonSchema is a JS object of the schema dereferenced internal and external
+});
+
 converter.toSimpleSchema(spec, function (error, simpleSchema) {
-  // simpleSchema is an instance of SimpleSchema
+  // simpleSchema is an instance of simpleSchema
 });
 ```
 

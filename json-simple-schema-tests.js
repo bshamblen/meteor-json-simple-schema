@@ -49,7 +49,7 @@ var packageJsonSchema = {
 Tinytest.add('JSONSchema - convert a basic JSON schema object to a SimpleSchema object', function(test) {
   var converter = new JsonSimpleSchema();
   converter.toSimpleSchema({json: packageJsonSchema}, function (err, simpleSchema) {
-    //Make sure .toSimpleSchema returned a SimpleSchema object
+    //Make sure .toSimpleSchema returned a SimpleSchema object 
     test.isNull(err);
 
     test.instanceOf(simpleSchema, SimpleSchema);
