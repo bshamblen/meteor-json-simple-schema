@@ -48,7 +48,7 @@ var packageJsonSchema = {
 
 Tinytest.add('JSONSchema - convert a basic JSON schema object to a SimpleSchema object', function(test) {
   var converter = new JsonSimpleSchema();
-  converter.toSimpleSchema({json: packageJsonSchema}, function (err, simpleSchema) {
+  converter.toSimpleSchemaInstance({json: packageJsonSchema}, function (err, simpleSchema) {
     //Make sure .toSimpleSchema returned a SimpleSchema object
     test.isNull(err);
 
@@ -110,7 +110,7 @@ var packageJsonSchemaWithInternalRef = {
 
 Tinytest.add('JSONSchema - convert a JSON schema object with internal references to a SimpleSchema object', function(test) {
   var converter = new JsonSimpleSchema();
-  converter.toSimpleSchema({json: packageJsonSchemaWithInternalRef}, function (err, simpleSchema) {
+  converter.toSimpleSchemaInstance({json: packageJsonSchemaWithInternalRef}, function (err, simpleSchema) {
     //Make sure .toSimpleSchema returned a SimpleSchema object
     test.isNull(err);
 
