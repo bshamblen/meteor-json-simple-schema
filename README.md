@@ -43,12 +43,18 @@ converter.getJsonSchema(spec, function (error, jsonSchema) {
 
 converter.toSimpleSchema(spec, function (error, simpleSchema) {
   // simpleSchema is an instance of simpleSchema
+  // set spec.skipDereference to true to avoid work done in 'getJsonSchema'
 });
 ```
 
 The spec object can contain:
   url:  a url string
   json: a schema represented as a JSON string or js object
+
+
+Note, it is not necessary to call getJsonSchema prior to calling toSimpleSchema.
+getJsonSchema can be used to build a dereferenced JSON schema, which can then
+be passed to the client, so that each client doesn't need to repeat the work.
 
 
 The instance of JsonSimpleSchema caches the schemas that it fetches.  To clear the cache, call:

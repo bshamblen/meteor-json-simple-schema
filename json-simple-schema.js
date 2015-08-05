@@ -39,7 +39,8 @@ JsonSimpleSchema.prototype.getJsonSchema = getJsonSchema;
  * To Simple Schema
  */
 JsonSimpleSchema.prototype.toSimpleSchema = function toSimpleSchema(spec, callback) {
-  getJsonSchema.bind(this)(spec, function (error, jsonSchema) {
+
+  function getJsonHandler (error, jsonSchema) {
     if (error) { return callback(error); }
     var simpleSchema;
     try {
@@ -49,22 +50,15 @@ JsonSimpleSchema.prototype.toSimpleSchema = function toSimpleSchema(spec, callba
       return callback(e);
     }
     return callback(null, simpleSchema);
-  });
-};
+  }
 
-JsonSimpleSchema.prototype.toSimpleSchemaInstance = function toSimpleSchemaInstance(spec, callback) {
-  checkToSimpleSchemaSpec(spec);
-  convertSchema.bind(this)(spec, function (error, jsonSchema) {
-    if (error) { return callback(error); }
-    var simpleSchema;
-    try {
-      simpleSchema = jsonSchemaToSimpleSchema(jsonSchema);
-      simpleSchema = new SimpleSchema(simpleSchema);
-    } catch(e) {
-      return callback(e);
+  if (spec.skipDereference && spec.json) {
+    if (typeof spec.json === 'string') {
+      return parseJson(spec.json, getJsonHandler);
     }
-    return callback(null, simpleSchema);
-  });
+    return getJsonHandler(null, spec.json);
+  }
+  return getJsonSchema.bind(this)(spec, getJsonHandler);
 };
 
 /**
@@ -134,6 +128,7 @@ function parseJson(json, callback) {
  */
 function resolveExternalRefs(spec, callback) {
   var cache = this._cache;
+  var schema;
   // get url, internal schema path, and flattened key path for each external ref
   spec.externalRefs = getExternalRefInfo(spec);
 
@@ -143,12 +138,16 @@ function resolveExternalRefs(spec, callback) {
       getJsonSchema.bind(this)({url: refItem.url}, function (err, result) {
         insertExternalRef(spec.json, refItem, result);
         if (++resolvedCount === spec.externalRefs.length) {
-          callback(null, resolveInteralRefs(spec, cache));
+          schema = resolveInternalRefs.bind(spec.json)();
+          if (spec.url) { cache[spec.url] = schema; }
+          return callback(null, schema);
         }
       });
     }, this);
   } else {
-    return callback(null, resolveInteralRefs(spec, cache));
+    schema = resolveInternalRefs.bind(spec.json)();
+    if (spec.url) { cache[spec.url] = schema; }
+    return callback(null, schema);
   }
 }
 
@@ -195,16 +194,20 @@ function insertExternalRef(schema, refItem, refSchema) {
  * Resolve Internal Refs
  * Replace refs to definitions with actual schema
  */
-function resolveInteralRefs(spec, cache) {
-  var schema = spec.json;
-  _.each(schema.properties, function(prop, key) {
-    var display = getDisplayValues(prop);
-    schema.properties[key] = _.extend(resolveInternalReference(prop, schema), display);
+function resolveInternalRefs(subSchema) {
+  var schema = this;
+  if (!subSchema) { subSchema = schema; }
+  _.keys(subSchema).filter(function (key) {
+    return typeof subSchema[key] === 'object';
+  })
+  .forEach(function(key) {
+    var prop = subSchema[key];
+    var displayValues = getDisplayValues(prop);
+    prop = resolveInternalReference(prop, schema);
+    prop = resolveInternalRefs.bind(schema)(prop);
+    subSchema[key] = _.extend(prop, displayValues);
   });
-  if (spec.url) {
-    cache[spec.url] = schema;
-  }
-  return schema;
+  return subSchema;
 }
 
 /**
@@ -254,8 +257,8 @@ function isAbsoluteUrl(url) {
  * Resolve Internal Reference
  */
 function resolveInternalReference(prop, schema) {
-  var $ref = prop.$ref;
-  if ($ref) {
+  var $ref;
+  if ($ref = prop.$ref) {
     if ($ref === '#') {
       // Prevent infinite recursion.
       return {type: schema.type || 'object'};
@@ -271,7 +274,7 @@ function resolveInternalReference(prop, schema) {
       }, schema);
       return resolveInternalReference(out);
     } else {
-      throw new Error('Uncaught external reference '+$ref+'.');
+      throw new Error('Invalid internal reference '+$ref+'.');
     }
   } else {
     if (prop.items && prop.items.$ref) {
@@ -292,28 +295,21 @@ function convertSchema(jsonSchema) {
 
 function translateProperties(properties, required) {
   var schema = {};
-
   _.each(properties, function(prop, key) {
-
     var ssProp = {};
     addRules(ssProp, prop, required.indexOf(key) !== -1);
-
     if (Meteor.isClient) {
       addAutoformAttributes(ssProp, prop);
     }
-
     schema[key] = ssProp;
     var subProps = getSubPropertiesFromProperty(prop);
-
     if (subProps) {
       var subSchema = translateProperties(subProps, getRequiredFromProperty(prop));
-
       _.each(subSchema, function(subProp, subKey) {
         schema[key + '.' + (prop.type === 'array' ? '$.' : '') + subKey] = subProp;
       });
     }
   });
-
   return schema;
 }
 
@@ -435,5 +431,3 @@ function addAutoformAttributes(target, source) {
     target.autoform.afFieldInput.firstOption = '(None)';
   }
 }
-
-
