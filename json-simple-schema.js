@@ -198,7 +198,7 @@ function resolveInternalRefs(subSchema) {
   var schema = this;
   if (!subSchema) { subSchema = schema; }
   _.keys(subSchema).filter(function (key) {
-    return typeof subSchema[key] === 'object';
+    return subSchema[key] && (typeof subSchema[key] === 'object');
   })
   .forEach(function(key) {
     var prop = subSchema[key];
