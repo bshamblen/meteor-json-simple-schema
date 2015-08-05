@@ -1,46 +1,66 @@
-[![Build Status](https://travis-ci.org/Yodata/meteor-json-simple-schema.svg)](https://travis-ci.org/Yodata/meteor-json-simple-schema)
+Meteor-Json-Simple-Schema
+-------------------------
 
-# JSON Schema to SimpleSchema Converter
+This is a fork of Yodata's <a href="https://github.com/Yodata/meteor-json-simple-schema">meteor-json-simple-schema</a>.
 
-Converts a JSON schema document to a SimpleSchema object, for use with Collection2 and AutoForm.
+This fork is in the process of supporting external refs within JSON schemas.
+Currently, external refs are supported, but not paths to nested objects inside the external ref.
 
-## Install
-```cli
-meteor add bshamblen:json-simple-schema
+```
+/**
+ * Supported
+ */
+// absolute url
+{$ref: 'http://my-host.com/schemas/my-schema.json'}
+// relative path
+{$ref: 'my-other-schema.json#'}
+
+/**
+ * Not supported - paths inside of the external ref
+ */
+{$ref: 'my-other-schema.json#exampleProperty'}
 ```
 
-## Use
-Simply load the contents of your JSON schema document from your local file system, or from a URL, and pass the parsed JSON object to the JSONSchema constructor:
+Support for paths inside of internal refs is not something I need right now,
+but I might find time for it, or you can do a pull request.
 
-```javascript
-var jsonSchemaDoc = JSON.parse($.ajax({
-	ype: 'GET',
-	url: 'http://example.com/path-to-json-schema-file',
-	async: false
-}).responseText);
-var jsonSchema = new JSONSchema(jsonSchemaDoc);
-var simpleSchema = jsonSchema.toSimpleSchema();
+
+
+API
+---
+
+The API is a bit different from the original.
+
+```
+var spec = {url:  'http://my-host.com/schemas/my-schema.json'}
+var altSpec = {json: schemaObject}
+
+var converter = new JsonSimpleSchema();
+
+converter.getJsonSchema(spec, function (error, jsonSchema) {
+  // jsonSchema is a JS object of the schema dereferenced internal and external
+});
+
+converter.toSimpleSchema(spec, function (error, simpleSchema) {
+  // simpleSchema is an instance of simpleSchema
+  // set spec.skipDereference to true to avoid work done in 'getJsonSchema'
+});
 ```
 
-## Disclaimer
-This is the first iteration of this project, with minimal functionality. It currently supports base data types (including arrays), inline sub-objects and many of the validation options:
-* title
-* minimum
-* maximum
-* exclusiveMinimum
-* exclusiveMaximum
-* minLength
-* maxLength
-* enum
-* minItems
-* maxItems
-* default
-* pattern
-* required
-* Now supports internal `$ref` (thanks [@bpatridge](https://github.com/bpartridge))
+The spec object can contain:
+  url:  a url string
+  json: a schema represented as a JSON string or js object
 
-## TODO
-* Add support for external `$ref` schemas, from a URI.
 
-## Contributing
-Please feel free to contribute by sumbitting a pull request.
+Note, it is not necessary to call getJsonSchema prior to calling toSimpleSchema.
+getJsonSchema can be used to build a dereferenced JSON schema, which can then
+be passed to the client, so that each client doesn't need to repeat the work.
+
+
+The instance of JsonSimpleSchema caches the schemas that it fetches.  To clear the cache, call:
+```
+converter.clearCache();
+```
+
+For more info, please see:
+<a href="https://github.com/Yodata/meteor-json-simple-schema">meteor-json-simple-schema</a>.
