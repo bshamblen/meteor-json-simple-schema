@@ -155,6 +155,11 @@ JSONSchema = function(schema, options) {
 			attachAutoformObject(target);
 			target.autoform.afFieldInput.type = 'datetime';
 		}
+
+		if (target.allowedValues && target.optional) {
+			attachAutoformObject(target);
+			target.autoform.afFieldInput.firstOption = '(None)';
+		}
 	}
 
 	// https://tools.ietf.org/id/draft-pbryan-zyp-json-ref-03.html
