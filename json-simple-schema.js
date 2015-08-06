@@ -1,5 +1,6 @@
 JSONSchema = function(schema, options) {
 	var root = this;
+	this.rawSchema = schema;
 
 	if (typeof schema !== 'object') {
 		throw new Error('schema parameter must be an object');
@@ -90,16 +91,16 @@ JSONSchema = function(schema, options) {
 	}
 
 	var translationMap = {
-		title: 'label',
-		minimum: 'min',
-		maximum: 'max',
-		exclusiveMinimum: 'exclusiveMin',
-		exclusiveMaximum: 'exclusiveMax',
-		minLength: 'min',
-		maxLength: 'max',
-		minItems: 'minCount',
-		maxItems: 'maxCount',
-		'default': 'defaultValue'
+		title: {key: 'label'},
+		minimum: {key: 'min', type: Number},
+		maximum: {key: 'max', type: Number},
+		exclusiveMinimum: {key: 'exclusiveMin', type: Boolean},
+		exclusiveMaximum: {key: 'exclusiveMax', type: Boolean},
+		minLength: {key: 'min', type: Number},
+		maxLength: {key: 'max', type: Number},
+		minItems: {key: 'minCount', type: Number},
+		maxItems: {key: 'maxCount', type: Number},
+		'default': {key: 'defaultValue'}
 	}
 
 	function addRules(target, source, isRequired) {
@@ -107,7 +108,7 @@ JSONSchema = function(schema, options) {
 
 		_.each(translationMap, function(sKey, jKey) {
 			if (typeof source[jKey] !== 'undefined') {
-				target[sKey] = source[jKey];
+				target[sKey.key] = sKey.type ? sKey.type(source[jKey]) : source[jKey];
 			}
 		});
 

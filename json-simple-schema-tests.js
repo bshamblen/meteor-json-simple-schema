@@ -14,8 +14,8 @@ var packageJsonSchema = {
 		},
 		'price': {
 			'type': 'number',
-			'minimum': 0,
-			'exclusiveMinimum': true
+			'minimum': '0', //test parsing of string values for number
+			'exclusiveMinimum': 1 //test parsing string values for boolean
 		},
 		'tags': {
 			'type': 'array',
