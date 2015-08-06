@@ -36,7 +36,7 @@ var packageJsonSchema = {
 		},
 		'color': {
 			'type': 'string',
-			'enum': ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet']
+			'enum': ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet', null]
 		},
 		'emailAddress': {
 			'type': 'string',

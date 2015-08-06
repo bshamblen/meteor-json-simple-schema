@@ -97,7 +97,6 @@ JSONSchema = function(schema, options) {
 		exclusiveMaximum: 'exclusiveMax',
 		minLength: 'min',
 		maxLength: 'max',
-		'enum': 'allowedValues',
 		minItems: 'minCount',
 		maxItems: 'maxCount',
 		'default': 'defaultValue'
@@ -113,6 +112,10 @@ JSONSchema = function(schema, options) {
 		});
 
 		target.optional = !isRequired;
+
+		if (source.enum) {
+			target.allowedValues = source.enum.filter(function(item) {return item !== null;});
+		}
 
 		if (source.pattern) {
 			target.regEx = new RegExp(source.pattern);
