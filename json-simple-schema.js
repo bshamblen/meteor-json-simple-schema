@@ -388,7 +388,7 @@ function addRules(target, source, isRequired) {
     target.regEx = new RegExp(source.pattern);
   }
 
-  if (source.enum && !source.enum.some(function (item) { return item === null; })) {
+  if (source.enum && source.enum.every(function (item) { return item !== null; })) {
     target.allowedValues = source.enum;
   }
 
@@ -426,11 +426,16 @@ function addAutoformAttributes(target, source) {
     target.autoform.afFieldInput.type = 'datetime';
   }
 
+  //for enums that contain null, create datalist to suggest options in an input
   if (source.enum && source.enum.some(function (item) { return item === null; })) {
     attachAutoformObject(target);
-    target.autoform.afFieldInput.type = 'text-datalist';
-    target.autoform.afFieldInput.options = source.enum.map(function (item) {
-      return {label: item, value: item};
-    })
+    //create datalist options
+    var datalist = source.enum
+      .filter(function (item) { return item !== null; })
+      .map(function (item) { return {label: item, value: item}; });
+    // note:  attaching datalist as an object threw an error
+    // note:  attaching datalist (string or object) to autoform.afFieldInput throws an error
+    // attaching it directly to autoform results in it being in afFieldInput on the client
+    target.autoform.datalist = JSON.stringify(datalist);
   }
 }
