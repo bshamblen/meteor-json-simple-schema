@@ -388,8 +388,8 @@ function addRules(target, source, isRequired) {
     target.regEx = new RegExp(source.pattern);
   }
 
-  if (source.enum) {
-    target.allowedValues = source.enum.filter(function (item) {return item !== null; });
+  if (source.enum && !source.enum.some(function (item) { return item === null; })) {
+    target.allowedValues = source.enum;
   }
 
   if (!source.pattern && source.format === 'email') {
@@ -424,10 +424,5 @@ function addAutoformAttributes(target, source) {
   if (source.format === 'date-time') {
     attachAutoformObject(target);
     target.autoform.afFieldInput.type = 'datetime';
-  }
-
-  if (source.enum && source.enum.some(function (item) { return item === null; })) {
-    attachAutoformObject(target);
-    target.autoform.afFieldInput.firstOption = '(None)';
   }
 }
