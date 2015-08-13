@@ -62,5 +62,9 @@ The instance of JsonSimpleSchema caches the schemas that it fetches.  To clear t
 converter.clearCache();
 ```
 
+One thing that JSON schema allows, but simple schema does not, is null within an enum.
+Null in an enum essentially renders the enum pointless because the schema can accept any value.  To account for this, I don't set the allowedValues property on the simple schema because then any value outside of the enum would throw an error.  For autoform purposes, I set a type of 'text-datalist' and options that reflect the enum.  I've implemented a custom input type, 'text-datalist', that displays a text input in conjunction with a datalist.  If you're using autoform, but have not created this custom input type, you will get an error that there is no input type 'text-datalist'.
+
+
 For more info, please see:
 <a href="https://github.com/Yodata/meteor-json-simple-schema">meteor-json-simple-schema</a>.

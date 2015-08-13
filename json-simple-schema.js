@@ -425,4 +425,12 @@ function addAutoformAttributes(target, source) {
     attachAutoformObject(target);
     target.autoform.afFieldInput.type = 'datetime';
   }
+
+  if (source.enum && source.enum.some(function (item) { return item === null; })) {
+    attachAutoformObject(target);
+    target.autoform.afFieldInput.type = 'text-datalist';
+    target.autoform.afFieldInput.options = source.enum.map(function (item) {
+      return {label: item, value: item};
+    })
+  }
 }
