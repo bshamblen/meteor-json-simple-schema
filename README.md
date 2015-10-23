@@ -14,7 +14,7 @@ Simply load the contents of your JSON schema document from your local file syste
 
 ```javascript
 var jsonSchemaDoc = JSON.parse($.ajax({
-	ype: 'GET',
+	type: 'GET',
 	url: 'http://example.com/path-to-json-schema-file',
 	async: false
 }).responseText);
