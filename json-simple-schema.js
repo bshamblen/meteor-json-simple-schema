@@ -8,10 +8,14 @@ JSONSchema = function(schema, options) {
 
 	var jsonSchema = schema;
 
-	this.toSimpleSchema = function toSimpleSchema() {
+	this.toSimpleSchemaProps = function toSimpleSchemaProps() {
 		var props = jsonSchema.properties || jsonSchema;
-		var simpleSchema = translateProperties(props, getRequiredFromProperty(jsonSchema));
-		return new SimpleSchema(simpleSchema);
+		return translateProperties(props, getRequiredFromProperty(jsonSchema));
+	}
+
+	this.toSimpleSchema = function toSimpleSchema() {
+		var simpleSchemaProps = this.toSimpleSchemaProps();
+		return new SimpleSchema(simpleSchemaProps);
 	}
 
 	function translateProperties(properties, required) {
