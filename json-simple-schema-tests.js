@@ -80,6 +80,50 @@ Tinytest.add('JSONSchema - convert a basic JSON schema object to a SimpleSchema 
 	test.equal(rawSchema.emailAddress.regEx, SimpleSchema.RegEx.Email);
 });
 
+Tinytest.add('JSONSchema - uses toSimpleSchemaProps to manually add a property before creating SimpleSchema instance', function(test) {
+	var jsonSchema = new JSONSchema(packageJsonSchema);
+	var props = jsonSchema.toSimpleSchemaProps();
+
+	props.extraProperty = {
+		type: String,
+		optional: true
+	}
+
+	var simpleSchema = new SimpleSchema(props);
+
+	//Make sure .toSimpleSchema returned a SimpleSchema object
+	test.instanceOf(simpleSchema, SimpleSchema);
+
+	var rawSchema = simpleSchema._schema;
+
+	test.equal(rawSchema.id.type, Number);
+	test.equal(rawSchema.id.optional, false);
+
+	test.equal(rawSchema.name.type, String);
+	test.equal(rawSchema.name.optional, false);
+
+	test.equal(rawSchema.price.type, Number);
+	test.equal(rawSchema.price.min, 0);
+	test.equal(rawSchema.price.optional, false);
+	test.equal(rawSchema.price.exclusiveMin, true);
+	test.equal(rawSchema.price.decimal, true);
+
+	test.equal(rawSchema.tags.type, Array);
+	test.equal(rawSchema.tags.minCount, 1);
+	test.equal(rawSchema['tags.$'].type, String);
+
+	test.equal(rawSchema['arrayOfObjects.$.foo'].type, String);
+
+	test.equal(rawSchema.color.type, String);
+	test.equal(rawSchema.color.allowedValues.length, 7);
+
+	test.equal(rawSchema.emailAddress.type, String);
+	test.equal(rawSchema.emailAddress.regEx, SimpleSchema.RegEx.Email);
+
+	test.equal(rawSchema.extraProperty.type, String);
+	test.equal(rawSchema.extraProperty.optional, true);
+});
+
 // https://tools.ietf.org/html/draft-ietf-appsawg-json-pointer-04
 var packageJsonSchemaWithInternalRef = {
 	'$schema': 'http://json-schema.org/draft-04/schema#',
