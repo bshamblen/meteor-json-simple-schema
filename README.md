@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Yodata/meteor-json-simple-schema.svg)](https://travis-ci.org/Yodata/meteor-json-simple-schema)
+[![Build Status](https://travis-ci.org/bshamblen/meteor-json-simple-schema.svg)](https://travis-ci.org/bshamblen/meteor-json-simple-schema)
 
 # JSON Schema to SimpleSchema Converter
 

@@ -34,6 +34,25 @@ var packageJsonSchema = {
 				}
 			}
 		},
+		'objectWithAdditionalProps': {
+			'type': 'object',
+			'properties': {
+				'blah': {
+					'type': 'string'
+				}
+			},
+			'additionalProperties': true
+		},
+		'arrayWithAdditionalProperties': {
+			'type': 'array',
+			'items': {
+				'type': 'object',
+				'additionalProperties': true,
+				'properties': {
+					'test': {'type': 'string'}
+				}
+			}
+		},
 		'color': {
 			'type': 'string',
 			'enum': ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet', null]
@@ -43,7 +62,8 @@ var packageJsonSchema = {
 			'format': 'email'
 		}
 	},
-	'required': ['id', 'name', 'price']
+	'required': ['id', 'name', 'price'],
+	'additionalProperties': true //ignore additionalProperties option at root level since SimpleSchema doesn't support blackbox at root level.
 };
 
 Tinytest.add('JSONSchema - convert a basic JSON schema object to a SimpleSchema object', function(test) {
@@ -72,6 +92,11 @@ Tinytest.add('JSONSchema - convert a basic JSON schema object to a SimpleSchema 
 	test.equal(rawSchema['tags.$'].type, String);
 
 	test.equal(rawSchema['arrayOfObjects.$.foo'].type, String);
+
+	test.equal(rawSchema['arrayWithAdditionalProperties.$'].type, Object);
+	test.equal(rawSchema['arrayWithAdditionalProperties.$'].blackbox, true);
+
+	test.equal(rawSchema.objectWithAdditionalProps.blackbox, true);
 
 	test.equal(rawSchema.color.type, String);
 	test.equal(rawSchema.color.allowedValues.length, 7);
@@ -113,6 +138,11 @@ Tinytest.add('JSONSchema - uses toSimpleSchemaProps to manually add a property b
 	test.equal(rawSchema['tags.$'].type, String);
 
 	test.equal(rawSchema['arrayOfObjects.$.foo'].type, String);
+
+	test.equal(rawSchema['arrayWithAdditionalProperties.$'].type, Object);
+	test.equal(rawSchema['arrayWithAdditionalProperties.$'].blackbox, true);
+
+	test.equal(rawSchema.objectWithAdditionalProps.blackbox, true);
 
 	test.equal(rawSchema.color.type, String);
 	test.equal(rawSchema.color.allowedValues.length, 7);

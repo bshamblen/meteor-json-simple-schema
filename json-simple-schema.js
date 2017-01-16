@@ -23,9 +23,9 @@ JSONSchema = function(schema, options) {
 
 		_.each(properties, function(prop, key) {
 			prop = resolveReference(prop);
-
+			var blackbox = getBlackboxFromProperty(prop);
 			var ssProp = {};
-			addRules(ssProp, prop, required.indexOf(key) !== -1);
+			addRules(ssProp, prop, required.indexOf(key) !== -1, blackbox);
 
 			if (Meteor.isClient) {
 				addAutoformAttributes(ssProp, prop);
@@ -34,7 +34,7 @@ JSONSchema = function(schema, options) {
 			schema[key] = ssProp;
 			var subProps = getSubPropertiesFromProperty(prop);
 
-			if (subProps) {
+			if (subProps && !blackbox) {
 				var subSchema = translateProperties(subProps, getRequiredFromProperty(prop));
 
 				_.each(subSchema, function(subProp, subKey) {
@@ -94,6 +94,16 @@ JSONSchema = function(schema, options) {
 		return [];
 	}
 
+	function getBlackboxFromProperty(prop) {
+		if (prop.type === 'object' && prop.additionalProperties) {
+			return true;
+		} else if (prop.type === 'array' && prop.items && prop.items.type === 'object' && prop.items.additionalProperties) {
+			return true;
+		}
+
+		return false;
+	}
+
 	var translationMap = {
 		title: {key: 'label'},
 		minimum: {key: 'min', type: Number},
@@ -107,7 +117,7 @@ JSONSchema = function(schema, options) {
 		'default': {key: 'defaultValue'}
 	}
 
-	function addRules(target, source, isRequired) {
+	function addRules(target, source, isRequired, isBlackbox) {
 		target.type = getTypeFromProperty(source);
 
 		_.each(translationMap, function(sKey, jKey) {
@@ -117,6 +127,10 @@ JSONSchema = function(schema, options) {
 		});
 
 		target.optional = !isRequired;
+
+		if (isBlackbox) {
+			target.blackbox = isBlackbox;
+		}
 
 		if (source.enum) {
 			target.allowedValues = source.enum.filter(function(item) {return item !== null;});
